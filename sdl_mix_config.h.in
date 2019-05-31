@@ -1,0 +1,3 @@
+// the configured options and settings for sdl_mix
+#define sdl_mix_VERSION_MAJOR @sdl_mix_VERSION_MAJOR@
+#define sdl_mix_VERSION_MINOR @sdl_mix_VERSION_MINOR@
