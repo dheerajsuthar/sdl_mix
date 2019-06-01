@@ -10,7 +10,7 @@
 #include "Sprite.h"
 #include "SDL_ttf.h"
 
-Game::Game() {
+Game::Game():mFPSStartTime(0) {
 	std::cout << "Game on" << "\n";
 	mResourceList.insert(
 			std::make_pair(ResourceType::TEXTURE,
@@ -49,13 +49,29 @@ void Game::setup() {
 	std::string fontPath = std::string(SDL_GetBasePath())
 			+ "assets/font/OpenSans-Regular.ttf";
 	std::cout << "font: " << fontPath << "\n";
-	mFont.reset(TTF_OpenFont(fontPath.c_str(), 28), sdl_deleter());
+	mFont.reset(TTF_OpenFont(fontPath.c_str(), FONT_SIZE), sdl_deleter());
 	if (!mFont) {
 		std::cout << "Font could not be created! TTF Error:", TTF_GetError();
 	}
 
 	std::cout << "SDL up and running\n";
 }
+
+void Game::showFPS(uint32_t currentTime) {
+	std::stringstream fps;
+	uint32_t fpsDelta = currentTime - mFPSStartTime;
+	mFPSStartTime = currentTime;
+	fps << "Frame rate: " << (1000.f / fpsDelta);
+	texture fpsTexture = textureFromText(fps.str(),
+			{ 0xFF, 0xFF, 0xFF, 0xFF });
+
+	int textWidth;
+	int textHeight;
+	SDL_QueryTexture(fpsTexture.get(), NULL, NULL, &textWidth, &textHeight);
+	SDL_Rect tgtForText = { FPS_X, FPS_Y, textWidth, textHeight };
+	SDL_RenderCopy(mRenderer.get(), fpsTexture.get(), NULL, &tgtForText);
+}
+
 texture Game::textureFromText(std::string text, SDL_Color color) {
 	surface textSurface(TTF_RenderText_Solid(mFont.get(), text.c_str(), color),
 			sdl_deleter());
@@ -121,23 +137,13 @@ void Game::loop() {
 		SDL_RenderClear(mRenderer.get());
 
 		//render texture
-//		SDL_RenderCopy(mRenderer.get(),mTextureHolder["adventurer"].get(),NULL,NULL);
+		//SDL_RenderCopy(mRenderer.get(),mTextureHolder["adventurer"].get(),NULL,NULL);
 		currentTime = SDL_GetTicks();
 		mPlayer->renderFrame(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, currentTime);
 
-//update frame rate
-		std::stringstream fps;
-		uint32_t fpsDelta = currentTime - fpsStartTime;
-		fpsStartTime = currentTime;
-		fps << "Frame rate: " << (1000.f / fpsDelta);
-		texture fpsTexture = textureFromText(fps.str(),
-				{ 0xFF, 0xFF, 0xFF, 0xFF });
+		//update frame rate
+		showFPS(currentTime);
 
-		int textWidth;
-		int textHeight;
-		SDL_QueryTexture(fpsTexture.get(), NULL, NULL, &textWidth, &textHeight);
-		SDL_Rect tgtForText = { 10, 10, textWidth, textHeight };
-		SDL_RenderCopy(mRenderer.get(), fpsTexture.get(), NULL, &tgtForText);
 		//update screen
 		SDL_RenderPresent(mRenderer.get());
 	}

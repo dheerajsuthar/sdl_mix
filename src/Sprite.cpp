@@ -8,7 +8,8 @@
 #include <iostream>
 
 Sprite::Sprite(renderer renderer, texture texture, uint32_t width,
-		uint32_t height, uint32_t offsetX, uint32_t offsetY, uint32_t fps, bool loop,uint32_t loopCount) :
+		uint32_t height, uint32_t offsetX, uint32_t offsetY, uint32_t fps,
+		bool loop, uint32_t loopCount) :
 		mRenderer(renderer), mTexture(std::move(texture)), mWidth(width), mHeight(
 				height), mCurrentOffsetX(offsetX), mCurrentOffsetY(offsetY), mLoopCount(
 				loopCount), mLoop(loop), mLastUpdated(0), mFPS(fps) {
@@ -19,8 +20,8 @@ void Sprite::renderFrame(uint32_t dstX, uint32_t dstY, uint32_t srcX,
 	SDL_Rect dst;
 	dst.x = dstX;
 	dst.y = dstY;
-	dst.w = mWidth;
-	dst.h = mHeight;
+	dst.w = SCALE_FACTOR * mWidth;
+	dst.h = SCALE_FACTOR * mHeight;
 	SDL_Rect src;
 	src.x = srcX;
 	src.y = srcY;
@@ -36,8 +37,8 @@ void Sprite::setTexture(texture texture) {
 void Sprite::renderFrame(uint32_t dstX, uint32_t dstY, uint32_t time) {
 
 	uint32_t delta = time - mLastUpdated;
-			std::cout << 1000.f / mFPS << "\n";
-			std::cout << delta << "\n";
+	std::cout << 1000.f / mFPS << "\n";
+	std::cout << delta << "\n";
 	std::cout << "looping: " << mLoop << " mCurrentOffsetX: " << mCurrentOffsetX
 			<< " mCurrentOffsetY:" << mCurrentOffsetY << "\n";
 	renderFrame(dstX, dstY, mCurrentOffsetX * mWidth,

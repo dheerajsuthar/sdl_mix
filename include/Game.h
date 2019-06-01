@@ -3,6 +3,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <unistd.h>
 #include "SDL.h"
 
 class Sprite;
@@ -15,12 +16,16 @@ public:
 
 	const int SCREEN_WIDTH = 800;
 	const int SCREEN_HEIGHT = 600;
+	const int FONT_SIZE = 10;
+	const int FPS_X = SCREEN_WIDTH-80;
+	const int FPS_Y = SCREEN_HEIGHT-20;
 
 private:
 	void setup();
 	void loadResources();
 	void createWorld();
 	void loop();
+	void showFPS(uint32_t currentTime);
 	texture textureFromText(std::string text, SDL_Color color);
 
 	window mWindow;
@@ -30,6 +35,7 @@ private:
 	sprite mPlayer;
 	texture mFrameRate;
 	font mFont;
+	uint32_t mFPSStartTime;
 
 	struct Resource {
 		std::string name;

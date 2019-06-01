@@ -12,6 +12,8 @@
 
 class Sprite {
 public:
+	const int SCALE_FACTOR = 2;
+
 	Sprite(renderer renderer, texture texture, uint32_t width, uint32_t height,uint32_t offsetX, uint32_t offsetY, uint32_t fps, bool loop = false,uint32_t loopCount = 0 );
 	void renderFrame(uint32_t dstX, uint32_t dstY, uint32_t offsetX,
 			uint32_t offsetY);
