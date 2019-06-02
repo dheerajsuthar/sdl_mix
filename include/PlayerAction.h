@@ -5,4 +5,5 @@ enum class PlayerAction{
     IDLE2,
     RUN,
     JUMP,
+    ACTION
 };

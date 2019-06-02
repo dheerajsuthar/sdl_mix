@@ -10,34 +10,36 @@
 #include <utility>
 
 Sprite::Sprite(renderer renderer, texture texture, uint32_t width,
-        uint32_t height,  uint32_t fps,
-        bool loop, int32_t scale) :
-		mRenderer(renderer), mTexture(std::move(texture)), mWidth(width), mHeight(
-                height), mLoop(loop), mLastUpdated(0), mFPS(fps),
-        mTgt({0,0,static_cast<int32_t>(mWidth),static_cast<int32_t>(mHeight)}),
-        mScale(scale),
-        mFlipped(false)
+               uint32_t height,  uint32_t fps,
+               int32_t scale) :
+    mRenderer(renderer), mTexture(std::move(texture)), mWidth(width), mHeight(
+                                                                          height), mLastUpdated(0), mFPS(fps),
+    mTgt({0,0,static_cast<int32_t>(mWidth),static_cast<int32_t>(mHeight)}),
+    mScale(scale),
+    mFlipped(false),
+    mRunOnce(false),
+    mHalted(false)
 {
-	//50,37
+    //50,37
 
 }
 
 void Sprite::renderFrame( uint32_t srcX,
-		uint32_t srcY) {
+                          uint32_t srcY) {
 
     mTgt.w = SCALE_FACTOR * mWidth;
     mTgt.h = SCALE_FACTOR * mHeight;
-	SDL_Rect src;
-	src.x = srcX;
-	src.y = srcY;
-	src.w = mWidth;
-	src.h = mHeight;
+    SDL_Rect src;
+    src.x = srcX;
+    src.y = srcY;
+    src.w = mWidth;
+    src.h = mHeight;
     SDL_RendererFlip flip = mFlipped?SDL_FLIP_HORIZONTAL:SDL_FLIP_NONE;
     SDL_RenderCopyEx(mRenderer.get(), mTexture.get(), &src, &mTgt,0,NULL,flip);
 }
 
 void Sprite::setTexture(texture texture) {
-	mTexture = std::move(texture);
+    mTexture = std::move(texture);
 }
 
 void Sprite::setAction(uint32_t action, std::vector<Sprite::offset> offsets){
@@ -79,21 +81,52 @@ void Sprite::setFlipped(bool flipped)
     mFlipped = flipped;
 }
 
+bool Sprite::runOnce() const
+{
+    return mRunOnce;
+}
+
+void Sprite::setRunOnce(bool runOnce)
+{
+    mRunOnce = runOnce;
+}
+
+bool Sprite::halted() const
+{
+    return mHalted;
+}
+
+void Sprite::setHalted(bool halted)
+{
+    mHalted = halted;
+}
+
 
 void Sprite::renderFrame(uint32_t time) {
-
     uint32_t delta = time - mLastUpdated;
     std::vector<offset> &actionReel = mActionMap[mCurrentAction];
     const offset &currentOffset = actionReel[mCurrentIndex];
     const uint64_t loopCount = actionReel.size();
 
-//    std::cout << "Rendering: " << currentOffset.x << " " << currentOffset.y << "\n";
 
     renderFrame(currentOffset.x,
-            currentOffset.y);
+                currentOffset.y);
 
-	if (mLoop && delta > (1000.f / mFPS)) {
-		mLastUpdated = time;
-        mCurrentIndex = ++mCurrentIndex % loopCount;
-	}
+//    if(mCurrentAction == 4){
+        std::cout << " mHalted:"<< mHalted
+                  << " mCurrentAction: " << mCurrentAction
+                  << " mRunOnce: " << mRunOnce
+                  << " currentIndex:" << mCurrentIndex
+                  << " loopCount: " << loopCount
+                   << "\n";
+//    }
+    if (!mHalted && delta > (1000.f / mFPS)) {
+        mLastUpdated = time;
+        if(mRunOnce && mCurrentIndex == loopCount-1){
+            mHalted = true;
+            mRunOnce = false;
+        } else {
+            mCurrentIndex = ++mCurrentIndex % loopCount;
+        }
+    }
 }

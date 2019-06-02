@@ -141,9 +141,20 @@ void Game::createWorld() {
         {50, 101},
         {100, 101}
     };
+
+    //y->222,257
+    std::vector<Sprite::offset> action{
+        {250, 222},
+        {300, 222},
+        {0,257},
+        {50,257},
+        {100, 257},
+        {150,257}
+    };
     mPlayer->setAction(static_cast<uint32_t>(PlayerAction::IDLE1),idle);
     mPlayer->setAction(static_cast<uint32_t>(PlayerAction::RUN), run);
     mPlayer->setAction(static_cast<uint32_t>(PlayerAction::JUMP), jump);
+    mPlayer->setAction(static_cast<uint32_t>(PlayerAction::ACTION), action);
     mPlayerVelX = mPlayerVelY = 0;
     SDL_Rect initialTgt = mPlayer->tgt();
     initialTgt.y = 100;
@@ -165,7 +176,13 @@ void Game::handleEvent()
 {
     SDL_Event e;
     SDL_Rect playerTarget = mPlayer->tgt();
-
+    if(mPlayerInAction){
+        if(mPlayer->halted()){
+            //action completed
+            mPlayer->setHalted(false);
+            mPlayerInAction = false;
+        }
+    }
 
     while (SDL_PollEvent(&e) != 0) {
         switch (e.type) {
@@ -175,22 +192,34 @@ void Game::handleEvent()
         case SDL_KEYDOWN:
             if(e.key.repeat == 0 ){
                 switch (e.key.keysym.sym) {
+                case SDLK_a:
+                    if(!mPlayerInJump && !mPlayerInAction){
+                        std::cout << "Action\n";
+                        mPlayerInAction = true;
+                        updatePlayerAction(PlayerAction::ACTION);
+                        mPlayer->setRunOnce(true);
+                    }
+                    break;
                 case SDLK_RIGHT:
-                    std::cout << "Prsng right\n";
-                    mPlayer->setFlipped(false);
-                    mPlayerVelX += PLAYER_VELOCITY_X;
-                    if(!mPlayerInJump)
-                        updatePlayerAction(PlayerAction::RUN);
+                    if(!mPlayerInAction){
+                        std::cout << "Prsng right\n";
+                        mPlayer->setFlipped(false);
+                        mPlayerVelX += PLAYER_VELOCITY_X;
+                        if(!mPlayerInJump)
+                            updatePlayerAction(PlayerAction::RUN);
+                    }
                     break;
                 case SDLK_LEFT:
-                    std::cout << "Prsng left\n";
-                    mPlayer->setFlipped(true);
-                    mPlayerVelX -= PLAYER_VELOCITY_X;
-                    if(!mPlayerInJump)
-                        updatePlayerAction(PlayerAction::RUN) ;
+                    if(!mPlayerInAction){
+                        std::cout << "Prsng left\n";
+                        mPlayer->setFlipped(true);
+                        mPlayerVelX -= PLAYER_VELOCITY_X;
+                        if(!mPlayerInJump)
+                            updatePlayerAction(PlayerAction::RUN) ;
+                    }
                     break;
                 case SDLK_SPACE:
-                    if(!mPlayerInJump){
+                    if(!mPlayerInJump && !mPlayerInAction){
                         //TODO: update with solid physics later
                         mYBeforeJump = playerTarget.y;
                         mPlayerVelY -= PLAYER_VELOCITY_Y;
@@ -207,12 +236,14 @@ void Game::handleEvent()
             if(e.key.repeat == 0 ){
                 switch (e.key.keysym.sym) {
                 case SDLK_RIGHT:
-                    std::cout << "Prsng right - \n";
-                    mPlayerVelX -= PLAYER_VELOCITY_X;
+                    if(!mPlayerInAction)
+                        std::cout << "Prsng right - \n";
+                        mPlayerVelX -= PLAYER_VELOCITY_X;
                     break;
                 case SDLK_LEFT:
-                    std::cout << "Prsng left - \n";
-                    mPlayerVelX += PLAYER_VELOCITY_X;
+                    if(!mPlayerInAction)
+                        std::cout << "Prsng left - \n";
+                        mPlayerVelX += PLAYER_VELOCITY_X;
                     break;
                 default:
                     break;
@@ -237,7 +268,7 @@ void Game::handleEvent()
         }
     }
 
-    if(!mPlayerInJump && mPlayerVelX == 0 && mPlayerVelY == 0){
+    if(!mPlayerInAction && !mPlayerInJump && mPlayerVelX == 0 && mPlayerVelY == 0){
         updatePlayerAction(PlayerAction::IDLE1);
     }
     playerTarget.x += mPlayerVelX;

@@ -68,5 +68,6 @@ private:
     uint32_t mPlayerCurrentAction;
     void updatePlayerAction(PlayerAction action);
     bool mPlayerInJump;
+    bool mPlayerInAction;
     int32_t mYBeforeJump;
 };

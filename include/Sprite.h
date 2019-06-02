@@ -23,7 +23,7 @@ public:
 
     Sprite(renderer renderer, texture texture,
            uint32_t width, uint32_t height, uint32_t fps,
-           bool loop = true, int32_t scale = 1);
+           int32_t scale = 1);
     void renderFrame(uint32_t offsetX,
 			uint32_t offsetY);
     void renderFrame(uint32_t currentTime);
@@ -40,12 +40,17 @@ public:
     bool flipped() const;
     void setFlipped(bool flipped);
 
+    bool runOnce() const;
+    void setRunOnce(bool runOnce);
+
+    bool halted() const;
+    void setHalted(bool halted);
+
 private:
     renderer mRenderer;
     texture mTexture;
 	uint32_t mWidth;
 	uint32_t mHeight;
-	uint32_t mLoopCount;
 	uint32_t mLastUpdated;
 	uint32_t mFPS;
     uint32_t mCurrentAction;
@@ -55,8 +60,9 @@ private:
 
 
 	std::map<uint32_t, std::vector<offset>> mActionMap;
-	bool mLoop;
     bool mFlipped;
+    bool mRunOnce;
+    bool mHalted;
 };
 
 #endif /* INCLUDE_SPRITE_H_ */
