@@ -37,6 +37,9 @@ public:
 
     uint32_t currentAction() const;
 
+    bool flipped() const;
+    void setFlipped(bool flipped);
+
 private:
     renderer mRenderer;
     texture mTexture;
@@ -53,6 +56,7 @@ private:
 
 	std::map<uint32_t, std::vector<offset>> mActionMap;
 	bool mLoop;
+    bool mFlipped;
 };
 
 #endif /* INCLUDE_SPRITE_H_ */

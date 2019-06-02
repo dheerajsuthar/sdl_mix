@@ -12,7 +12,8 @@
 #include "PlayerAction.h"
 
 Game::Game():mFPSStartTime(0),
-    mGameState(GameState::STOPPED){
+    mGameState(GameState::STOPPED),
+    mPlayerInJump(false){
     std::cout << "Game on" << "\n";
     mResourceList.insert(
                 std::make_pair(ResourceType::TEXTURE,
@@ -176,15 +177,26 @@ void Game::handleEvent()
                 switch (e.key.keysym.sym) {
                 case SDLK_RIGHT:
                     std::cout << "Prsng right\n";
-                    mPlayerVelX += PLAYER_VELOCITY;
-                    updatePlayerAction(PlayerAction::RUN);
-                    if(mPlayerVelX > 0)
-                    std::cout << "x: " << mPlayerVelX << "y: " << mPlayerVelY << "\n";
+                    mPlayer->setFlipped(false);
+                    mPlayerVelX += PLAYER_VELOCITY_X;
+                    if(!mPlayerInJump)
+                        updatePlayerAction(PlayerAction::RUN);
                     break;
                 case SDLK_LEFT:
                     std::cout << "Prsng left\n";
-                    mPlayerVelX -= PLAYER_VELOCITY;
-                    updatePlayerAction(PlayerAction::RUN) ;
+                    mPlayer->setFlipped(true);
+                    mPlayerVelX -= PLAYER_VELOCITY_X;
+                    if(!mPlayerInJump)
+                        updatePlayerAction(PlayerAction::RUN) ;
+                    break;
+                case SDLK_SPACE:
+                    if(!mPlayerInJump){
+                        //TODO: update with solid physics later
+                        mYBeforeJump = playerTarget.y;
+                        mPlayerVelY -= PLAYER_VELOCITY_Y;
+                        updatePlayerAction(PlayerAction::JUMP);
+                        mPlayerInJump = true;
+                    }
                     break;
                 default:
                     break;
@@ -196,11 +208,11 @@ void Game::handleEvent()
                 switch (e.key.keysym.sym) {
                 case SDLK_RIGHT:
                     std::cout << "Prsng right - \n";
-                    mPlayerVelX -= PLAYER_VELOCITY;
+                    mPlayerVelX -= PLAYER_VELOCITY_X;
                     break;
                 case SDLK_LEFT:
                     std::cout << "Prsng left - \n";
-                    mPlayerVelX += PLAYER_VELOCITY;
+                    mPlayerVelX += PLAYER_VELOCITY_X;
                     break;
                 default:
                     break;
@@ -213,12 +225,22 @@ void Game::handleEvent()
         };
     }
 
+    if(mPlayerInJump){
+        std::cout <<"DEBUG: " << mYBeforeJump << " " << mPlayerVelY << " " << playerTarget.y;
+        mPlayerVelY = mPlayerVelY + GRAVITY;
+        if(mPlayerVelY + playerTarget.y > mYBeforeJump){
+            playerTarget.y += mYBeforeJump-playerTarget.y;
+            mPlayerVelY = 0;
+            mPlayerInJump = false;
+        } else {
+            playerTarget.y += mPlayerVelY;
+        }
+    }
 
-    if(mPlayerVelX == 0 && mPlayerVelY == 0){
+    if(!mPlayerInJump && mPlayerVelX == 0 && mPlayerVelY == 0){
         updatePlayerAction(PlayerAction::IDLE1);
     }
     playerTarget.x += mPlayerVelX;
-    playerTarget.y += mPlayerVelY;
 
     mPlayer->setTgt(playerTarget);
 }

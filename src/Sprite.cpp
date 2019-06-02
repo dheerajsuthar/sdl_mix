@@ -15,7 +15,8 @@ Sprite::Sprite(renderer renderer, texture texture, uint32_t width,
 		mRenderer(renderer), mTexture(std::move(texture)), mWidth(width), mHeight(
                 height), mLoop(loop), mLastUpdated(0), mFPS(fps),
         mTgt({0,0,static_cast<int32_t>(mWidth),static_cast<int32_t>(mHeight)}),
-        mScale(scale)
+        mScale(scale),
+        mFlipped(false)
 {
 	//50,37
 
@@ -31,7 +32,8 @@ void Sprite::renderFrame( uint32_t srcX,
 	src.y = srcY;
 	src.w = mWidth;
 	src.h = mHeight;
-    SDL_RenderCopy(mRenderer.get(), mTexture.get(), &src, &mTgt);
+    SDL_RendererFlip flip = mFlipped?SDL_FLIP_HORIZONTAL:SDL_FLIP_NONE;
+    SDL_RenderCopyEx(mRenderer.get(), mTexture.get(), &src, &mTgt,0,NULL,flip);
 }
 
 void Sprite::setTexture(texture texture) {
@@ -65,6 +67,16 @@ SDL_Rect Sprite::tgt() const
 uint32_t Sprite::currentAction() const
 {
     return mCurrentAction;
+}
+
+bool Sprite::flipped() const
+{
+    return mFlipped;
+}
+
+void Sprite::setFlipped(bool flipped)
+{
+    mFlipped = flipped;
 }
 
 

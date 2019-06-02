@@ -20,9 +20,11 @@ public:
 	const int FONT_SIZE = 10;
 	const int FPS_X = SCREEN_WIDTH-80;
 	const int FPS_Y = SCREEN_HEIGHT-20;
+    const int GRAVITY = 1;
 
     //Player specific
-    const int PLAYER_VELOCITY = 10;
+    const int PLAYER_VELOCITY_X = 10;
+    const int PLAYER_VELOCITY_Y = 15;
 
     enum GameState{
         STOPPED,
@@ -65,4 +67,6 @@ private:
     int32_t mPlayerVelY;
     uint32_t mPlayerCurrentAction;
     void updatePlayerAction(PlayerAction action);
+    bool mPlayerInJump;
+    int32_t mYBeforeJump;
 };
