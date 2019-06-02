@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unistd.h>
 #include "SDL.h"
+#include "PlayerAction.h"
 
 class Sprite;
 
@@ -20,6 +21,15 @@ public:
 	const int FPS_X = SCREEN_WIDTH-80;
 	const int FPS_Y = SCREEN_HEIGHT-20;
 
+    //Player specific
+    const int PLAYER_VELOCITY = 10;
+
+    enum GameState{
+        STOPPED,
+        RUNNING,
+        PAUSED
+    };
+
 private:
 	void setup();
 	void loadResources();
@@ -31,12 +41,12 @@ private:
 	window mWindow;
 	renderer mRenderer;
 
-	using sprite = std::unique_ptr<Sprite>;
-	sprite mPlayer;
+
 	texture mFrameRate;
 	font mFont;
 	uint32_t mFPSStartTime;
 
+    GameState mGameState;
 	struct Resource {
 		std::string name;
 		std::string path;
@@ -47,4 +57,12 @@ private:
 
 	std::unordered_map<ResourceType, Resource> mResourceList;
 	std::unordered_map<std::string, texture> mTextureHolder;
+    void handleEvent();
+
+    using sprite = std::unique_ptr<Sprite>;
+    sprite mPlayer;
+    int32_t mPlayerVelX;
+    int32_t mPlayerVelY;
+    uint32_t mPlayerCurrentAction;
+    void updatePlayerAction(PlayerAction action);
 };

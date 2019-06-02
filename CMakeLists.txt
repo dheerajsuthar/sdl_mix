@@ -18,12 +18,12 @@ configure_file (
 	)
 
 include_directories("${PROJECT_SOURCE_DIR}/include")
+file(GLOB INC_ALL "${PROJECT_SOURCE_DIR}/include/*.h")
 
 file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
-file(GLOB src "src/*.cpp")
 
 #add_executable (sdl_mix sdl_mix.cpp ${src})
-add_executable (sdl_mix sdl_mix.cpp src/Game.cpp src/Sprite.cpp)
+add_executable (sdl_mix sdl_mix.cpp src/Game.cpp src/Sprite.cpp ${INC_ALL})
 target_link_libraries (sdl_mix ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES} ${SDL2_net_LIBRARIES} ${SDL2_mixer_LIBRARIES} 
 ${SDL2_image_LIBRARIES} ${SDL2_gfx_LIBRARIES})
 install (TARGETS sdl_mix DESTINATION bin)

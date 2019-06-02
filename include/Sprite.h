@@ -9,26 +9,49 @@
 #define INCLUDE_SPRITE_H_
 #include "SDL.h"
 #include <cstdint>
+#include <map>
+#include <vector>
 
 class Sprite {
 public:
 	const int SCALE_FACTOR = 2;
 
-	Sprite(renderer renderer, texture texture, uint32_t width, uint32_t height,uint32_t offsetX, uint32_t offsetY, uint32_t fps, bool loop = false,uint32_t loopCount = 0 );
-	void renderFrame(uint32_t dstX, uint32_t dstY, uint32_t offsetX,
+    struct offset{
+        uint32_t x;
+        uint32_t y;
+    };
+
+    Sprite(renderer renderer, texture texture,
+           uint32_t width, uint32_t height, uint32_t fps,
+           bool loop = true, int32_t scale = 1);
+    void renderFrame(uint32_t offsetX,
 			uint32_t offsetY);
-	void renderFrame(uint32_t dstX, uint32_t dstY, uint32_t currentTime);
+    void renderFrame(uint32_t currentTime);
 	void setTexture(texture texture);
+    void setAction(uint32_t action,std::vector<offset> offsets );
+    void runAction(uint32_t action);
+    void setScale(const int32_t &scale);
+    void setTgt(const SDL_Rect &tgt);
+
+    SDL_Rect tgt() const;
+
+    uint32_t currentAction() const;
+
 private:
-	renderer mRenderer;
-	texture mTexture;
+    renderer mRenderer;
+    texture mTexture;
 	uint32_t mWidth;
 	uint32_t mHeight;
-	uint32_t mCurrentOffsetX;
-	uint32_t mCurrentOffsetY;
 	uint32_t mLoopCount;
 	uint32_t mLastUpdated;
 	uint32_t mFPS;
+    uint32_t mCurrentAction;
+    uint32_t mCurrentIndex;
+    SDL_Rect mTgt;
+    int32_t mScale;
+
+
+	std::map<uint32_t, std::vector<offset>> mActionMap;
 	bool mLoop;
 };
 
